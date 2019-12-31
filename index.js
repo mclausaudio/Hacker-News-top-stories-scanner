@@ -1,10 +1,11 @@
 const axios = require("axios");
 const fs = require("fs");
 
-hackerNews("apple", 10);
+hackerNews("Postman", 500);
 
 //Define function
 async function hackerNews(searchTerm, numOfTopArticles) {
+	console.log('Search started... This may take a few minutes...')
 	try {
 		const results = [];
 		// Grab the IDs for all the top stories
