@@ -23,7 +23,7 @@ The script will begin to run and your terminal will display the following messag
 
 ![Search starterd](./readme/terminal-search-started.png)
 
-The searching process may take a few minutes depending on how many articles you are searching through.  If a Hacker News post does not include a link to an external article or page, for example a community question or discussion thread, a message will be displayted in the terminal.  The results will be logged to the terminal.  Below shows what a search with NO RESULTS will look like.
+The searching process may take a few minutes depending on how many articles you are searching through.  If a Hacker News post does not include a link to an external article or page, for example a community question or discussion thread, a message will be displayed in the terminal.  The results will be logged to the terminal.  Below shows what a search with NO RESULTS will look like.
 
 ![Search starterd](./readme/no-results.png)
 
@@ -41,7 +41,7 @@ Results will also be written to a `.json` file and placed into the 'results' fol
 
 ![Search starterd](./readme/results-json.png)
 
-Now we can visit the page and hit CMD+F to find the term.  Here's is screenshot of the section from one of the returned results.
+Now we can visit the page and hit CMD+F to find the term.  Here's a screenshot of the section from one of the returned results.
 
 ![Search starterd](./readme/results-webpage-term-highlighted.png)
 
@@ -56,14 +56,19 @@ Using a CMD+F search for the term did not produce any results, however searching
 ---
 
 Improvements to make:
+- Automate script to run daily.
+- Detailed error handling.
 - Include URL to specific Hacker News post in addition to external link.
 - Create an option to scan through text inside the articles `<body></body>` tag only.
-- Detailed error handling.
 - Scan through each posting's comments in addition to the provided link.
 - If the posting is NOT an article, scan through the comments section instead.
-- Automate script to run daily.
 - Back end to make script executable via an API.
 - Make results accessible to other team members / developers via an API.
 - Auth (users / teams)
 
+---
+
 Please let me know if you have feedback or a feature idea.  If you see a bug or issue, feel free to contribute.  My email is mclausaudio@gmail.com.
+
+
+Shout out to Ryan McBride (@Ryan-McBride) for the initial idea.
