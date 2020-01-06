@@ -19,7 +19,7 @@ At the top of index.js on line 4, invoke the hackerNews function. The first argu
 
 ![hackerNews("Postman", 100)](./readme/function-envoke-100.png)
 
-The script will begin to run and your terminal will display the following message:
+Run the script with `node index.js`. The script will begin to run and your terminal will display the following message:
 
 ![Search starterd](./readme/terminal-search-started.png)
 
