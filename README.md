@@ -55,11 +55,15 @@ Using a CMD+F search for the term did not produce any results, however searching
 
 ---
 
-Impropvements to make:
-- Automate script to run daily.
+Improvements to make:
+- Include URL to specific Hacker News post in addition to external link.
 - Create an option to scan through text inside the articles `<body></body>` tag only.
 - Detailed error handling.
 - Scan through each posting's comments in addition to the provided link.
 - If the posting is NOT an article, scan through the comments section instead.
+- Automate script to run daily.
+- Back end to make script executable via an API.
+- Make results accessible to other team members / developers via an API.
+- Auth (users / teams)
 
 Please let me know if you have feedback or a feature idea.  If you see a bug or issue, feel free to contribute.  My email is mclausaudio@gmail.com.
