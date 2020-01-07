@@ -1,11 +1,11 @@
 const axios = require("axios");
 const fs = require("fs");
 
-hackerNews("Postman", 500);
+hackerNews("evaluating state", 1);
 
 //Define function
 async function hackerNews(searchTerm, numOfTopArticles) {
-	console.log('Search started... This may take a few minutes...')
+	console.log(`Search started for "${searchTerm}"... This may take a few minutes...`)
 	try {
 		const results = [];
 		// Grab the IDs for all the top stories
@@ -26,13 +26,38 @@ async function hackerNews(searchTerm, numOfTopArticles) {
 					let res = await axios(
 						`https://hacker-news.firebaseio.com/v0/item/${id}.json?print=pretty`
 					);
-					//Grab the article itself from the URL
-					if (res.data.url === undefined) {
+					const foundArticle = res.data;
+					
+
+					// We have the article object.
+					console.log('===========================')
+					console.log(foundArticle)
+					console.log('===========================')
+					// Let's check the title of each post for the term, since they will always have one
+
+					// Let's check the type (ex. story, poll, job.. )
+
+					// Handle each type accordingly.
+
+						// Is there a text, aka the post's body?
+
+						// Is there comments?
+							// If so, check each comment
+								// Does the comment have comments?
+									
+
+
+
+
+
+
+
+					if (!foundArticle.url) {
 						console.log(
-							`Article does not provide valid URL: "${res.data.title}" by ${res.data.by}`
+							`Article does not provide valid URL: "${foundArticle.title}" by ${foundArticle.by} - HN post ID: ${id}`
 						);
 					} else {
-						let page = await axios(res.data.url);
+						let page = await axios(foundArticle.url);
 						//  If the article contains the term.. push the result into results array
 						if (
 							page.data
@@ -40,9 +65,9 @@ async function hackerNews(searchTerm, numOfTopArticles) {
 								.includes(searchTerm.toLowerCase())
 						) {
 							let result = {
-								title: res.data.title,
-								url: res.data.url,
-								type: res.data.type,
+								title: foundArticle.title,
+								url: foundArticle.url,
+								type: foundArticle.type,
 								term: `Contains the term "${searchTerm}"`
 							};
 							results.push(result);
@@ -69,3 +94,10 @@ async function hackerNews(searchTerm, numOfTopArticles) {
 		console.log("ERROR", err);
 	}
 }
+
+// NOTEPAD:
+
+// Rather than nesting for loops - would it be faster to have two seperate for loops:
+// 1st: Grab the text of every article and stick it inside an object/array
+// 2nd: Loops through this new object/array and checks each index if the text contains the term.
+// This would be one loop, followed by a nested loop.. Rather than a triple nested loop?
