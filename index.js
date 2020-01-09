@@ -1,11 +1,12 @@
 const axios = require("axios");
 const fs = require("fs");
 
-hackerNews("evaluating state", 1);
+hackerNews("Emissions", 1);
 
 //Define function
 async function hackerNews(searchTerm, numOfTopArticles) {
 	console.log(`Search started for "${searchTerm}"... This may take a few minutes...`)
+	searchTerm = searchTerm.toLowerCase();
 	try {
 		const results = [];
 		// Grab the IDs for all the top stories
@@ -17,40 +18,53 @@ async function hackerNews(searchTerm, numOfTopArticles) {
 		for (let i = 0; i < numOfTopArticles; i++) {
 			articles.push(topStories.data[i]);
 		}
+		console.log(articles)
 		// Loop through ID array
-		let scanArticle = async () => {
+		let scanPost = async () => {
 			for (let i = 0; i < articles.length; i++) {
 				try {
 					let id = articles[i].toString();
 					//Grab the articles info
-					let res = await axios(
-						`https://hacker-news.firebaseio.com/v0/item/${id}.json?print=pretty`
-					);
+					let res = await axios(`https://hacker-news.firebaseio.com/v0/item/${id}.json?print=pretty`);
 					const foundArticle = res.data;
+					console.log('===========================')
+					console.log(`Article ${i} ::::::::::::::`,foundArticle)
+					console.log('===========================')
+					// Check the title of each post for the term - All posts have a title
+					if (foundArticle.title.includes(searchTerm)){
+						results.push(resultMaker(foundArticle, 'title'));
+						continue;
+					} 
+					// Previous idea: Let's check the type (ex. story, poll, job.. )
+					// Update:  The posts type won't matter, if there's next then lets check it.
+					else if (foundArticle.text && foundArticle.text.include(searchTerm)){
+						results.push(resultMaker(foundArticle, 'text'));
+						continue;
+					}
+					// Is there comments?
+					else if (foundArticle.kids) {
+						const comments = foundArticle.kids;
+						for (let j = 0; j < comments.length; j++){
+							const res = await axios(`https://hacker-news.firebaseio.com/v0/item/${comments[j]}.json`);
+							const comment = res.data;
+							// Does this comment have comments associated?
+							// Comments of comments can have comments, we need to go all the way down the comment tree - Recurssion?
+
+							const commentChecker = (comment) => {
+								
+							}
+							if (comment.kids) {
+								console.log('comment.kids', comment.kids)
+							}
+							
+						}
+						// If so, check each comment
+							// Does the comment have comments?
+						console.log(foundArticle.kids)
+					}
 					
 
-					// We have the article object.
-					console.log('===========================')
-					console.log(foundArticle)
-					console.log('===========================')
-					// Let's check the title of each post for the term, since they will always have one
-
-					// Let's check the type (ex. story, poll, job.. )
-
-					// Handle each type accordingly.
-
-						// Is there a text, aka the post's body?
-
-						// Is there comments?
-							// If so, check each comment
-								// Does the comment have comments?
-									
-
-
-
-
-
-
+					
 
 					if (!foundArticle.url) {
 						console.log(
@@ -78,7 +92,18 @@ async function hackerNews(searchTerm, numOfTopArticles) {
 				}
 			}
 		};
-		await scanArticle();
+		let resultMaker = (post, termLocation) => {
+			return {
+				title: post.title,
+				termLocation,
+				postUrl: `https://news.ycombinator.com/item?id=${post.id}`,
+				url: post.url,
+				type: post.type,
+				score: post.score,
+				term: searchTerm
+			};
+		}
+		await scanPost();
 		//  Log the results to console, write results to JSON
 		console.log("Results", results);
 		let time = new Date();
