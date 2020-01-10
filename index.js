@@ -1,7 +1,7 @@
 const axios = require("axios");
 const fs = require("fs");
 
-hackerNews("Emissions", 1);
+hackerNews("mac os", 1);
 
 //Define function
 async function hackerNews(searchTerm, numOfTopArticles) {
@@ -44,23 +44,35 @@ async function hackerNews(searchTerm, numOfTopArticles) {
 					// Is there comments?
 					else if (foundArticle.kids) {
 						const comments = foundArticle.kids;
-						for (let j = 0; j < comments.length; j++){
-							const res = await axios(`https://hacker-news.firebaseio.com/v0/item/${comments[j]}.json`);
-							const comment = res.data;
-							// Does this comment have comments associated?
-							// Comments of comments can have comments, we need to go all the way down the comment tree - Recurssion?
+						console.log('===========================')
+						console.log('COMMENTS: ', comments)
+						console.log('===========================')
+						// Comments is an array of comment IDs
+						// Each comment can have it's own comments, which is an array of IDs
+						// This can go on infinitly
+						const flat = [];
+						// Must use for loop and not forEach...forEach is not async function
 
-							const commentChecker = (comment) => {
-								
+						let recur = async (id, index) => {
+							let res = await axios(`https://hacker-news.firebaseio.com/v0/item/${comments[index]}.json`);
+
+							if (res.data.kids) {
+								for(let k = 0; k < res.data.kids; k++) {
+									recur(id, k);
+								}
 							}
-							if (comment.kids) {
-								console.log('comment.kids', comment.kids)
-							}
-							
+							console.log('res.data', res.data)
 						}
-						// If so, check each comment
-							// Does the comment have comments?
-						console.log(foundArticle.kids)
+
+						for (let j = 0; j < comments.length; j++) {
+							console.log('comments[j] id', comments[j]);
+							let res = await axios(`https://hacker-news.firebaseio.com/v0/item/${comments[j]}.json`);
+							if (res.data.kids) {
+								recur(id, j);
+							}
+						}
+
+						
 					}
 					
 
