@@ -1,10 +1,11 @@
 const axios = require("axios");
 const fs = require("fs");
 const commentChecker = require('./recursion');
+const resultMaker = require('./resultMaker');
 
 
 
-hackerNews("Multiple proposed fixes and replacements to SS7", 1);
+hackerNews("Postman", 300);
 
 //Define function
 async function hackerNews(searchTerm, numOfTopArticles) {
@@ -35,13 +36,13 @@ async function hackerNews(searchTerm, numOfTopArticles) {
 					console.log('===========================')
 					// Check the title of each post for the term - All posts have a title
 					if (foundArticle.title.toLowerCase().includes(searchTerm)){
-						results.push(resultMaker(foundArticle, 'title'));
+						results.push(resultMaker(foundArticle, searchTerm, 'title'));
 						continue;
 					} 
 					// Previous idea: Let's check the type (ex. story, poll, job.. )
 					// Update:  The posts type won't matter, if there's next then lets check it.
 					else if (foundArticle.text && foundArticle.text.toLowerCase().include(searchTerm)){
-						results.push(resultMaker(foundArticle, 'text'));
+						results.push(resultMaker(foundArticle, searchTerm, 'text'));
 						continue;
 					}
 					// Is there comments?
@@ -53,7 +54,7 @@ async function hackerNews(searchTerm, numOfTopArticles) {
 							const comment = res.data;
 							const lower = comment.text.toLowerCase();
 							if (comment.text && lower.includes(searchTerm)){
-								results.push(resultMaker(foundArticle, 'comment'));
+								results.push(resultMaker(foundArticle, searchTerm, 'comment'));
 								return;
 							}
 						}
@@ -67,13 +68,7 @@ async function hackerNews(searchTerm, numOfTopArticles) {
 								.toLowerCase()
 								.includes(searchTerm.toLowerCase())
 						) {
-							let result = {
-								title: foundArticle.title,
-								url: foundArticle.url,
-								type: foundArticle.type,
-								term: `Contains the term "${searchTerm}"`
-							};
-							results.push(result);
+							results.push(resultMaker(foundArticle, searchTerm, 'link'));
 						}
 					}
 				} catch (err) {
@@ -81,17 +76,6 @@ async function hackerNews(searchTerm, numOfTopArticles) {
 				}
 			}
 		};
-		let resultMaker = (post, termLocation) => {
-			return {
-				title: post.title,
-				termLocation,
-				hackerNewsUrl: `https://news.ycombinator.com/item?id=${post.id}`,
-				linkUrl: post.url,
-				type: post.type,
-				score: post.score,
-				term: searchTerm
-			};
-		}
 		await scanPost();
 		//  Log the results to console, write results to JSON
 		console.log("Results", results);
