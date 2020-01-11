@@ -1,7 +1,10 @@
 const axios = require("axios");
 const fs = require("fs");
+const commentChecker = require('./recursion');
 
-hackerNews("mac os", 1);
+
+
+hackerNews("Multiple proposed fixes and replacements to SS7", 1);
 
 //Define function
 async function hackerNews(searchTerm, numOfTopArticles) {
@@ -18,7 +21,7 @@ async function hackerNews(searchTerm, numOfTopArticles) {
 		for (let i = 0; i < numOfTopArticles; i++) {
 			articles.push(topStories.data[i]);
 		}
-		console.log(articles)
+		// console.log(articles)
 		// Loop through ID array
 		let scanPost = async () => {
 			for (let i = 0; i < articles.length; i++) {
@@ -31,58 +34,32 @@ async function hackerNews(searchTerm, numOfTopArticles) {
 					console.log(`Article ${i} ::::::::::::::`,foundArticle)
 					console.log('===========================')
 					// Check the title of each post for the term - All posts have a title
-					if (foundArticle.title.includes(searchTerm)){
+					if (foundArticle.title.toLowerCase().includes(searchTerm)){
 						results.push(resultMaker(foundArticle, 'title'));
 						continue;
 					} 
 					// Previous idea: Let's check the type (ex. story, poll, job.. )
 					// Update:  The posts type won't matter, if there's next then lets check it.
-					else if (foundArticle.text && foundArticle.text.include(searchTerm)){
+					else if (foundArticle.text && foundArticle.text.toLowerCase().include(searchTerm)){
 						results.push(resultMaker(foundArticle, 'text'));
 						continue;
 					}
 					// Is there comments?
 					else if (foundArticle.kids) {
 						const comments = foundArticle.kids;
-						console.log('===========================')
-						console.log('COMMENTS: ', comments)
-						console.log('===========================')
-						// Comments is an array of comment IDs
-						// Each comment can have it's own comments, which is an array of IDs
-						// This can go on infinitly
-						const flat = [];
-						// Must use for loop and not forEach...forEach is not async function
-
-						let recur = async (id, index) => {
-							let res = await axios(`https://hacker-news.firebaseio.com/v0/item/${comments[index]}.json`);
-
-							if (res.data.kids) {
-								for(let k = 0; k < res.data.kids; k++) {
-									recur(id, k);
-								}
-							}
-							console.log('res.data', res.data)
-						}
-
-						for (let j = 0; j < comments.length; j++) {
-							console.log('comments[j] id', comments[j]);
-							let res = await axios(`https://hacker-news.firebaseio.com/v0/item/${comments[j]}.json`);
-							if (res.data.kids) {
-								recur(id, j);
+						const flat = await commentChecker(comments);
+						for (let j = 0; j<flat.length;j++){
+							let res = await axios(`https://hacker-news.firebaseio.com/v0/item/${flat[j]}.json`);
+							const comment = res.data;
+							const lower = comment.text.toLowerCase();
+							if (comment.text && lower.includes(searchTerm)){
+								results.push(resultMaker(foundArticle, 'comment'));
+								return;
 							}
 						}
-
-						
 					}
-					
-
-					
-
-					if (!foundArticle.url) {
-						console.log(
-							`Article does not provide valid URL: "${foundArticle.title}" by ${foundArticle.by} - HN post ID: ${id}`
-						);
-					} else {
+					// Now lets lastly check the article page
+					 else {
 						let page = await axios(foundArticle.url);
 						//  If the article contains the term.. push the result into results array
 						if (
@@ -108,8 +85,8 @@ async function hackerNews(searchTerm, numOfTopArticles) {
 			return {
 				title: post.title,
 				termLocation,
-				postUrl: `https://news.ycombinator.com/item?id=${post.id}`,
-				url: post.url,
+				hackerNewsUrl: `https://news.ycombinator.com/item?id=${post.id}`,
+				linkUrl: post.url,
 				type: post.type,
 				score: post.score,
 				term: searchTerm
