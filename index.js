@@ -82,6 +82,11 @@ async function hackerNews(searchTerm, numOfTopArticles) {
 		//  Log the results to console, write results to JSON
 		console.log("Results", results);
 		let time = new Date();
+		const resultsJson = {
+			searchDate: time, 
+			searchTerm,
+			
+		}
 		fs.writeFile(
 			`results/${searchTerm} results - ${time}.json`,
 			JSON.stringify(results),
