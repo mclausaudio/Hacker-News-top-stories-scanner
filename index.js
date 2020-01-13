@@ -6,7 +6,7 @@ const resultMaker = require('./resultMaker');
 
 
 
-hackerNews("Postman", 300);
+hackerNews("Postman", 100);
 
 //Define function
 async function hackerNews(searchTerm, numOfTopArticles) {
@@ -33,7 +33,7 @@ async function hackerNews(searchTerm, numOfTopArticles) {
 					let res = await axios(`https://hacker-news.firebaseio.com/v0/item/${id}.json?print=pretty`);
 					const foundArticle = res.data;
 					console.log('===========================')
-					console.log(`Article ${i} ::::::::::::::`,foundArticle)
+					console.log(`Scanning HN Post #${i+1} of ${numOfTopArticles}  :::: "${foundArticle.title}"`);
 					console.log('===========================')
 					// Check the title of each post for the term - All posts have a title
 					if (foundArticle.title.toLowerCase().includes(searchTerm)){
@@ -49,14 +49,15 @@ async function hackerNews(searchTerm, numOfTopArticles) {
 					// Is there comments?
 					else if (foundArticle.kids) {
 						const comments = foundArticle.kids;
+						// Returns a flattened array of all comments / sub comments.
 						const flat = await commentChecker(comments);
+						// Search check each comment
 						for (let j = 0; j<flat.length;j++){
 							let res = await axios(`https://hacker-news.firebaseio.com/v0/item/${flat[j]}.json`);
 							const comment = res.data;
-							const lower = comment.text.toLowerCase();
-							if (comment.text && lower.includes(searchTerm)){
+							if (comment.text && comment.text.toLowerCase().includes(searchTerm)){
 								results.push(resultMaker(foundArticle, searchTerm, 'comment'));
-								return;
+								continue;
 							}
 						}
 					}
@@ -73,7 +74,7 @@ async function hackerNews(searchTerm, numOfTopArticles) {
 						}
 					}
 				} catch (err) {
-					console.log(err);
+					console.log("Something went wrong... :/ ---->", err.message);
 				}
 			}
 		};
@@ -90,7 +91,7 @@ async function hackerNews(searchTerm, numOfTopArticles) {
 			}
 		);
 	} catch (err) {
-		console.log("ERROR", err);
+		console.log("Something went wrong... :/ ---->", err.message);
 	}
 }
 

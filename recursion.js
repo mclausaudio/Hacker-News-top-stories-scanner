@@ -28,21 +28,35 @@ const axios = require('axios');
 //   }
 
 module.exports = async function commentChecker(initialCommentsArray) {
-    const flat = [];
-    const parentComments = initialCommentsArray;
-    async function recurssiveComments(commentsArray) {
-        // Recurrsivly look through comments, returning all the IDs into a flattened array
-        // This way, we can simply loop through each id, make api call, check the text
-        const mainPostComments = commentsArray;
-        for (let i = 0; i < mainPostComments.length; i++) {
-            flat.push(mainPostComments[i]);
-            let res = await axios(`https://hacker-news.firebaseio.com/v0/item/${mainPostComments[i]}.json`);
-            let comment = res.data;
-            if (comment.kids){
-                recurssiveComments(comment.kids);
+    try {
+        const flat = [];
+        const parentComments = initialCommentsArray;
+        async function recurssiveComments(commentsArray) {
+            try {
+                // Recurrsivly look through comments, returning all the IDs into a flattened array
+                // This way, we can simply loop through each id, make api call, check the text
+                const mainPostComments = commentsArray;
+                for (let i = 0; i < mainPostComments.length; i++) {
+                    let res = await axios(`https://hacker-news.firebaseio.com/v0/item/${mainPostComments[i]}.json`);
+                    let comment = res.data;
+                    // Sometimes HackerNews API returns 'null' for a comment, so we check to make sure something is there
+                    if (comment){
+                        // Make the comment.deleted is false, and that it doesn't exist on object
+                        if (!comment.deleted) {
+                            flat.push(mainPostComments[i]);
+                        }
+                        if (comment.kids){
+                            recurssiveComments(comment.kids);
+                        }
+                    }
+                }
+            } catch (err) {
+                console.log('Error in recurssiveComments: ', err.message)
             }
         }
+        await recurssiveComments(parentComments);
+        return flat;
+    } catch(err) {
+        console.log('Error in commentChecker:  ', err)
     }
-    await recurssiveComments(parentComments);
-    return flat;
 }
